@@ -16,11 +16,26 @@
  *  - Periodic polling for predictions, recommendations, events
  */
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const POLL_INTERVAL_MS = 10_000;
-const CO2_SAFE_LIMIT = 400;   // Regulatory limit (ppm)
-const CO2_DANGER_THRESHOLD = 450;
 const ANOMALY_DELTA_PCT = 0.12;  // 12% spike = anomaly
+
+// ── Global Config (Fetched from API) ─────────────────────────────────────────
+let CONFIG = {
+    warning: 350.0,
+    danger: 400.0,
+    critical: 500.0
+};
+let thresholdsLoaded = false;
+
+async function syncThresholds() {
+    try {
+        const r = await fetch("/api/v1/config/thresholds");
+        CONFIG = await r.json();
+        thresholdsLoaded = true;
+        console.log("✅ Thresholds synced:", CONFIG);
+    } catch (e) {
+        console.warn("⚠️ Using default thresholds (API unreachable)");
+    }
+}
 
 // ── DOM helper ────────────────────────────────────────────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -236,27 +251,33 @@ function updateMetrics(data) {
 
     // Compliance meter
     const co2Num = Number(co2);
-    const limitPct = Math.min((co2Num / 500) * 100, 100);
+    const limitPct = Math.min((co2Num / CONFIG.critical) * 100, 100);
     complianceBarEl.style.width = `${limitPct}%`;
-    if (co2Num > CO2_DANGER_THRESHOLD) {
+
+    if (co2Num >= CONFIG.critical) {
+        complianceBarEl.style.background = "var(--clr-critical)";
+        complianceLabelEl.textContent = `🆘 CRITICAL: ${(co2Num - CONFIG.danger).toFixed(0)} ppm above danger limit`;
+        complianceLabelEl.style.color = "var(--clr-critical)";
+        complianceValueEl.textContent = "!!!";
+    } else if (co2Num >= CONFIG.danger) {
         complianceBarEl.style.background = "var(--clr-danger)";
-        complianceLabelEl.textContent = `🚨 ${(co2Num - CO2_SAFE_LIMIT).toFixed(0)} ppm above safe limit`;
+        complianceLabelEl.textContent = `🚨 ${(co2Num - CONFIG.danger).toFixed(0)} ppm above regulatory limit`;
         complianceLabelEl.style.color = "var(--clr-danger)";
         complianceValueEl.textContent = "+";
-    } else if (co2Num > CO2_SAFE_LIMIT) {
+    } else if (co2Num >= CONFIG.warning) {
         complianceBarEl.style.background = "var(--clr-warning)";
-        complianceLabelEl.textContent = `⚠ ${(co2Num - CO2_SAFE_LIMIT).toFixed(0)} ppm above CPCB limit`;
+        complianceLabelEl.textContent = `⚠ ${(co2Num - CONFIG.warning).toFixed(0)} ppm above CPCB warning limit`;
         complianceLabelEl.style.color = "var(--clr-warning)";
-        complianceValueEl.textContent = `+${(co2Num - CO2_SAFE_LIMIT).toFixed(0)}`;
+        complianceValueEl.textContent = `+${(co2Num - CONFIG.warning).toFixed(0)}`;
     } else {
         complianceBarEl.style.background = "var(--clr-accent)";
-        complianceLabelEl.textContent = `✅ Within CPCB safe limit (400 ppm)`;
+        complianceLabelEl.textContent = `✅ Within CPCB safe range (< ${CONFIG.warning} ppm)`;
         complianceLabelEl.style.color = "var(--clr-accent)";
-        complianceValueEl.textContent = `-${(CO2_SAFE_LIMIT - co2Num).toFixed(0)}`;
+        complianceValueEl.textContent = `OK`;
     }
 
-    // Chart
-    pushCo2DataPoint(Number(co2), new Date().toLocaleTimeString("en-IN"));
+    // Chart - ensure we pass numeric value
+    pushCo2DataPoint(co2Num, new Date().toLocaleTimeString("en-IN"));
 }
 
 // ── Polling: Prediction ───────────────────────────────────────────────────────
@@ -467,12 +488,13 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(tickClock, 1000);
 
     connectSSE();
-    checkSystemStatus();
+    syncThresholds().then(() => {
+        checkSystemStatus();
+        refreshPrediction();
+        refreshRecommendation();
+        refreshEvents();
+    });
     setInterval(checkSystemStatus, 30_000);
-
-    refreshPrediction();
-    refreshRecommendation();
-    refreshEvents();
 
     setInterval(refreshPrediction, POLL_INTERVAL_MS);
     setInterval(refreshRecommendation, POLL_INTERVAL_MS);

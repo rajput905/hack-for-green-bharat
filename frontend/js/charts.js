@@ -68,6 +68,9 @@ function initCo2Chart(canvasId) {
                     grid: { color: "rgba(255,255,255,0.04)" },
                 },
                 y: {
+                    min: 0,
+                    suggestedMax: 500,
+                    beginAtZero: true,
                     ticks: { color: "#6b7a8d", font: { size: 10 } },
                     grid: { color: "rgba(255,255,255,0.04)" },
                     title: { display: true, text: "ppm", color: "#6b7a8d", font: { size: 10 } },
