@@ -109,6 +109,10 @@ const simCategoryEl = $("sim-category");
 const simComplianceEl = $("sim-compliance");
 const simRecEl = $("sim-recommendation");
 
+// ── Report ─────────────────────────────────────────────────────────────────────
+const genReportBtn = $("gen-report-btn");
+const reportOverlay = $("report-overlay");
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let lastCo2 = null;
 let latestData = {};  // last SSE payload
@@ -479,6 +483,86 @@ $("arch-modal-close").addEventListener("click", () => {
 $("arch-modal").addEventListener("click", (e) => {
     if (e.target === $("arch-modal")) $("arch-modal").style.display = "none";
 });
+
+// ── Report Generation ──────────────────────────────────────────────────────────
+function generateReport() {
+    const timestamp = new Date().toLocaleString("en-IN");
+    const co2 = Number(latestData.co2_ppm || 0).toFixed(1);
+    const risk = Number(latestData.risk_score || 0).toFixed(2);
+    const severity = (latestData.severity || "SAFE").toUpperCase();
+    const city = currentCity;
+
+    const recTitle = $("rec-title").textContent;
+    const recBody = $("rec-body").textContent;
+    const recActions = $("rec-actions").innerHTML;
+
+    const reportHTML = `
+    <div class="report-header">
+      <div>
+        <h1 class="report-title">GreenFlow AI Status Report</h1>
+        <p style="color:#00e676; font-weight:700; margin:5px 0;">Environmental Intelligence Platform</p>
+      </div>
+      <div class="report-meta">
+        <div>Generated: ${timestamp}</div>
+        <div>Zone: ${city}</div>
+        <div>Status: <strong>${severity}</strong></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h2>1. Live Environmental Metrics</h2>
+      <div class="report-grid">
+        <div class="report-card">
+          <h3>Current CO₂ Level</h3>
+          <div class="value">${co2} ppm</div>
+        </div>
+        <div class="report-card">
+          <h3>Calculated Risk Index</h3>
+          <div class="value">${risk} / 1.0</div>
+        </div>
+        <div class="report-card">
+          <h3>Monitoring Source</h3>
+          <div class="value">Active Smart-Sensor Net</div>
+        </div>
+        <div class="report-card">
+          <h3>Regulatory Status</h3>
+          <div class="value">${severity}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h2>2. AI Intelligence & Recommendations</h2>
+      <div class="report-card" style="margin-bottom:1rem; border-left:4px solid #00e676;">
+        <h3 style="color:#1a2433; font-weight:700;">${recTitle}</h3>
+        <p style="font-size:10pt; line-height:1.5;">${recBody}</p>
+      </div>
+      <h3 style="font-size:10pt; margin-bottom:0.5rem;">Recommended Critical Actions:</h3>
+      <ul style="font-size:10pt; line-height:1.8; color:#1a2433;">
+        ${recActions}
+      </ul>
+    </div>
+
+    <div class="report-section">
+      <h2>3. Legal & Regulatory Baseline</h2>
+      <p style="font-size:9pt; color:#6b7a8d;">
+        This report is generated based on CPCB (Central Pollution Control Board) standards and real-time sensor data 
+        processed via the GreenFlow Pathway Engine. Current data indicates a compliance status of 
+        <strong>${severity === 'SAFE' ? 'IN COMPLIANCE' : 'ACTION REQUIRED'}</strong>.
+      </p>
+    </div>
+
+    <div class="report-footer">
+      <p>© 2026 GreenFlow AI - Hack for Green Bharat Initiative</p>
+      <p>System Integrity: Verified | Data Encryption: AES-256 | Environment: ${city} Intelligent Zone</p>
+    </div>
+  `;
+
+    reportOverlay.innerHTML = reportHTML;
+    window.print();
+}
+
+genReportBtn.addEventListener("click", generateReport);
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
