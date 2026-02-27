@@ -22,7 +22,7 @@ def compute_risk_score(co2_ppm: float) -> float:
     Returns:
         Risk score between 0.0 (safe) and 1.0 (critical).
     """
-    return min(co2_ppm / 500.0, settings.RISK_SCORE_MAX)
+    return min(co2_ppm / settings.CO2_CRITICAL_THRESHOLD, settings.RISK_SCORE_MAX)
 
 
 def compute_carbon_score(co2_ppm: float) -> float:
@@ -61,7 +61,7 @@ def classify_severity(co2_ppm: float) -> str:
         return "safe"
     if co2_ppm < settings.CO2_DANGER_THRESHOLD:
         return "warning"
-    if co2_ppm < 500.0:
+    if co2_ppm < settings.CO2_CRITICAL_THRESHOLD:
         return "danger"
     return "critical"
 
