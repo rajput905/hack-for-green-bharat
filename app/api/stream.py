@@ -17,7 +17,7 @@ from typing import AsyncGenerator
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-from app.config import settings
+
 from app.pipeline.extractor import enrich_event
 from app.pipeline.streaming import stream_enriched_events
 

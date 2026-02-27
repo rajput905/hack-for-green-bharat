@@ -8,7 +8,6 @@ based on the latest sensor reading stored in the database.
 from __future__ import annotations
 
 import random
-import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
