@@ -44,7 +44,7 @@ async def _live_event_generator() -> AsyncGenerator[str, None]:
                 payload = events[-1]
             else:
                 # Generate a synthetic reading for demo / health purposes
-                co2 = round(random.uniform(310, 520), 2)
+                co2: float = float(round(random.uniform(310, 520), 2))
                 payload = enrich_event(
                     {
                         "source": "live-sensor",

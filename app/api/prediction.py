@@ -48,14 +48,14 @@ async def get_prediction(db: DbDep) -> PredictionResponse:
     avg_24h = await analytics_service.get_average_co2(db, hours=24.0)
 
     # Seed from latest reading; fall back to demo value
-    current = latest.co2_ppm if latest else round(random.uniform(340.0, 440.0), 2)
+    current: float = latest.co2_ppm if latest else float(round(random.uniform(340.0, 440.0), 2))
 
     # Simple linear projection with noise (replace with ML model in prod)
     noise_1h = random.uniform(-10.0, 10.0)
     noise_24h = random.uniform(-30.0, 30.0)
 
-    predicted_1h = round(max(300.0, current + noise_1h), 2)
-    predicted_24h = round(max(300.0, avg_24h + noise_24h if avg_24h else current + noise_24h), 2)
+    predicted_1h: float = float(round(max(300.0, current + noise_1h), 2))
+    predicted_24h: float = float(round(max(300.0, avg_24h + noise_24h if avg_24h else current + noise_24h), 2))
 
     # Determine trend direction
     if predicted_24h > current + 15:
@@ -66,7 +66,7 @@ async def get_prediction(db: DbDep) -> PredictionResponse:
         trend = "stable"
 
     # Confidence degrades the further out we project (demo heuristic)
-    confidence = round(random.uniform(0.72, 0.94), 2)
+    confidence: float = float(round(random.uniform(0.72, 0.94), 2))
 
     return PredictionResponse(
         current_co2=current,

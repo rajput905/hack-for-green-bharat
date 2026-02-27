@@ -124,4 +124,5 @@ async def stream_enriched_events(tail: int = 50) -> list[dict]:
     except OSError:
         return []
 
-    return events[-tail:]
+    tail_events: list[dict] = events[-tail:]
+    return tail_events

@@ -114,7 +114,7 @@ async def get_recommendation(db: DbDep) -> RecommendationResponse:
         Structured recommendation with title, actions, and urgency.
     """
     latest = await analytics_service.get_latest_event(db)
-    co2 = latest.co2_ppm if latest else round(random.uniform(340.0, 420.0), 2)
+    co2: float = latest.co2_ppm if latest else float(round(random.uniform(340.0, 420.0), 2))
 
     severity = classify_severity(co2)
     rec = _RECOMMENDATIONS.get(severity, _RECOMMENDATIONS["safe"])

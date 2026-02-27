@@ -84,10 +84,12 @@ class RAGEngine:
             logger.warning("ChromaDB not available – skipping index_document(%s)", doc_id)
             return
 
+        # ChromaDB requires non-empty metadata – always include at least one key
+        safe_meta = metadata if metadata else {"source": doc_id}
         self._collection.upsert(
             ids=[doc_id],
             documents=[text],
-            metadatas=[metadata or {}],
+            metadatas=[safe_meta],
         )
         logger.info("Indexed document '%s' into RAG collection.", doc_id)
 
@@ -226,7 +228,7 @@ class RAGEngine:
         return {
             "answer": answer.strip(),
             "sources": source_ids,
-            "latency_ms": round(latency_ms, 2),
+            "latency_ms": float(round(latency_ms, 2)),
         }
 
 

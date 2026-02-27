@@ -49,7 +49,7 @@ async def get_risk(db: DbDep) -> RiskResponse:
         co2 = latest.co2_ppm
     else:
         # Demo fallback: simulate a mid-range reading
-        co2 = round(random.uniform(310.0, 480.0), 2)
+        co2: float = float(round(random.uniform(310.0, 480.0), 2))
 
     risk_score = compute_risk_score(co2)
     severity = classify_severity(co2)

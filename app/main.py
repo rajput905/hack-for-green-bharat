@@ -53,27 +53,33 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Shutdown:
     - Graceful teardown (connections auto-closed by SQLAlchemy).
     """
-    logger.info("🌱 GreenFlow AI starting up …")
+    logger.info("GreenFlow AI starting up ...")
 
     # Database
     await init_db()
-    logger.info("✅ Database tables ready.")
+    logger.info("Database tables ready.")
 
-    # RAG knowledge base
-    try:
-        rag_engine.seed_knowledge_base()
-    except Exception as exc:
-        logger.warning("RAG seeding failed: %s", exc)
+    # RAG knowledge base – run in background thread so the 79MB ChromaDB
+    # ONNX model download doesn't block server startup.
+    def _seed_rag() -> None:
+        try:
+            rag_engine.seed_knowledge_base()
+            logger.info("RAG knowledge base seeded successfully.")
+        except Exception as exc:
+            logger.warning("RAG seeding failed (non-fatal): %s", exc)
+
+    rag_thread = threading.Thread(target=_seed_rag, daemon=True, name="rag-seed")
+    rag_thread.start()
 
     # Start streaming pipeline in background thread (non-blocking)
     pipeline_thread = threading.Thread(target=run_pipeline, daemon=True, name="pipeline")
     pipeline_thread.start()
-    logger.info("✅ Streaming pipeline started (daemon thread).")
+    logger.info("Streaming pipeline started (daemon thread).")
 
-    logger.info("🚀 GreenFlow AI is live at http://0.0.0.0:%s", 8000)
+    logger.info("GreenFlow AI is live at http://0.0.0.0:%s", 8000)
     yield
 
-    logger.info("🛑 GreenFlow AI shutting down …")
+    logger.info("GreenFlow AI shutting down ...")
 
 
 # ── App factory ───────────────────────────────────────────────────────────────
