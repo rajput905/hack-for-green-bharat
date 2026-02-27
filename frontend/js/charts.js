@@ -84,16 +84,17 @@ function initCo2Chart(canvasId) {
  * Push a new CO2 data point to the chart.
  * Automatically trims old data to CO2_CHART_MAX_POINTS.
  *
- * @param {number} co2     CO2 reading in ppm.
- * @param {string} label   Time label for the x-axis (e.g. "14:05:22").
+ * @param {number} co2       CO2 reading in ppm.
+ * @param {string} label     Time label for the x-axis.
+ * @param {number} threshold Optional threshold line value (defaults to 400).
  */
-function pushCo2DataPoint(co2, label) {
+function pushCo2DataPoint(co2, label, threshold = 400) {
     if (!co2ChartInstance) return;
 
     const chart = co2ChartInstance;
     chart.data.labels.push(label);
     chart.data.datasets[0].data.push(co2);
-    chart.data.datasets[1].data.push(400); // threshold line
+    chart.data.datasets[1].data.push(threshold);
 
     if (chart.data.labels.length > CO2_CHART_MAX_POINTS) {
         chart.data.labels.shift();

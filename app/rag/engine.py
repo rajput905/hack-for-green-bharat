@@ -12,9 +12,14 @@ from __future__ import annotations
 
 import logging
 import time
+import typing
 from pathlib import Path
-
 from app.config import settings
+
+if typing.TYPE_CHECKING:
+    import chromadb
+    from chromadb.api import Collection
+    from openai import AsyncOpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +34,9 @@ class RAGEngine:
     """
 
     def __init__(self) -> None:
-        self._client = None
-        self._collection = None
-        self._openai_client = None
+        self._client: typing.Any = None
+        self._collection: typing.Any = None
+        self._openai_client: typing.Any = None
         self._initialized = False
 
     # ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -86,11 +91,16 @@ class RAGEngine:
 
         # ChromaDB requires non-empty metadata – always include at least one key
         safe_meta = metadata if metadata else {"source": doc_id}
-        self._collection.upsert(
-            ids=[doc_id],
-            documents=[text],
-            metadatas=[safe_meta],
-        )
+        
+        # Defensive check for linter
+        if self._collection is not None:
+            self._collection.upsert(
+                ids=[doc_id],
+                documents=[text],
+                metadatas=[safe_meta],
+            )
+        else:
+            logger.warning("Attempted to index document %s, but collection is None", doc_id)
         logger.info("Indexed document '%s' into RAG collection.", doc_id)
 
     def seed_knowledge_base(self) -> None:
@@ -173,14 +183,16 @@ class RAGEngine:
 
         if self._collection is not None:
             try:
+                # Type-check satisfaction: capture result and count separately
+                doc_count = self._collection.count() or 0
                 results = self._collection.query(
                     query_texts=[query],
-                    n_results=min(3, self._collection.count() or 1),
+                    n_results=min(3, doc_count if doc_count > 0 else 1),
                 )
                 docs = results.get("documents", [[]])[0]
                 ids = results.get("ids", [[]])[0]
-                context_chunks = docs
-                source_ids = ids
+                context_chunks = [str(d) for d in docs]
+                source_ids = [str(i) for i in ids]
             except Exception as exc:
                 logger.warning("ChromaDB query failed: %s", exc)
 
@@ -228,7 +240,7 @@ class RAGEngine:
         return {
             "answer": answer.strip(),
             "sources": source_ids,
-            "latency_ms": float(round(latency_ms, 2)),
+            "latency_ms": float(f"{latency_ms:.2f}"),
         }
 
 

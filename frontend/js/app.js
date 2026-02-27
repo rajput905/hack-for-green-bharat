@@ -17,6 +17,7 @@
  */
 
 const ANOMALY_DELTA_PCT = 0.12;  // 12% spike = anomaly
+const POLL_INTERVAL_MS = 30000;  // 30s polling
 
 // ── Global Config (Fetched from API) ─────────────────────────────────────────
 let CONFIG = {
@@ -173,8 +174,12 @@ function connectSSE() {
             // Apply city offset
             const offset = CITY_OFFSET[currentCity] || 0;
             const data = { ...raw, co2_ppm: Number(raw.co2_ppm) + offset };
-            data.risk_score = Math.min(data.co2_ppm / 500, 1.0);
-            data.severity = classifySeverity(data.risk_score);
+
+            // Dynamic risk based on critical threshold
+            const criticalLimit = CONFIG.critical || 500;
+            data.risk_score = Math.min(data.co2_ppm / criticalLimit, 1.0);
+            data.severity = classifySeverity(data.co2_ppm); // use ppm for classification
+
             updateMetrics(data);
             latestData = data;
             spLastUpdate.textContent = new Date().toLocaleTimeString("en-IN");
@@ -193,10 +198,11 @@ function connectSSE() {
 }
 
 // ── Severity classifier ────────────────────────────────────────────────────────
-function classifySeverity(risk) {
-    if (risk >= 1.0) return "critical";
-    if (risk >= 0.8) return "danger";
-    if (risk >= 0.7) return "warning";
+function classifySeverity(co2) {
+    if (!thresholdsLoaded) return "safe";
+    if (co2 >= CONFIG.critical) return "critical";
+    if (co2 >= CONFIG.danger) return "danger";
+    if (co2 >= CONFIG.warning) return "warning";
     return "safe";
 }
 
@@ -240,7 +246,9 @@ function updateMetrics(data) {
     const riskPercent = Math.min(Math.round(Number(risk) * 100), 100);
     riskBarEl.style.width = `${riskPercent}%`;
     riskBarEl.setAttribute("aria-valuenow", riskPercent);
-    const cat = riskCategory(Number(risk));
+
+    // Use the uniform severity classifier for the risk badge
+    const cat = severity;
     riskBarEl.className = `risk-bar ${cat === "danger" || cat === "critical" ? "risk-bar--" + cat : ""}`;
     riskCategoryBadge.textContent = cat.toUpperCase();
     riskCategoryBadge.className = `risk-badge ${cat}`;
@@ -280,8 +288,8 @@ function updateMetrics(data) {
         complianceValueEl.textContent = `OK`;
     }
 
-    // Chart - ensure we pass numeric value
-    pushCo2DataPoint(co2Num, new Date().toLocaleTimeString("en-IN"));
+    // Chart - ensure we pass numeric value and dynamic threshold
+    pushCo2DataPoint(co2Num, new Date().toLocaleTimeString("en-IN"), CONFIG.danger);
 }
 
 // ── Polling: Prediction ───────────────────────────────────────────────────────
@@ -437,10 +445,12 @@ simRunBtn.addEventListener("click", () => {
     // AQI factor: high AQI amplifies effective risk slightly
     const aqiMult = 1 + (aqi / 1000);
     const effCo2 = co2 * aqiMult;
-    const risk = Math.min(effCo2 / 500, 1.0);
-    const cat = riskCategory(risk);
+    const criticalLimit = CONFIG.critical || 500;
+    const risk = Math.min(effCo2 / criticalLimit, 1.0);
+    const cat = classifySeverity(effCo2);
 
-    const overLimit = co2 - CO2_SAFE_LIMIT;
+    const safeLimit = CONFIG.warning || 350;
+    const overLimit = co2 - safeLimit;
     const compliance = overLimit > 0
         ? `+${overLimit.toFixed(0)} ppm over limit`
         : `${Math.abs(overLimit).toFixed(0)} ppm under limit`;
@@ -486,6 +496,11 @@ $("arch-modal").addEventListener("click", (e) => {
 
 // ── Report Generation ──────────────────────────────────────────────────────────
 function generateReport() {
+    if (!latestData.co2_ppm) {
+        alert("Wait for live telemetry or run a simulation before exporting a report.");
+        return;
+    }
+
     const timestamp = new Date().toLocaleString("en-IN");
     const co2 = Number(latestData.co2_ppm || 0).toFixed(1);
     const risk = Number(latestData.risk_score || 0).toFixed(2);
