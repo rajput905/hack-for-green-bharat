@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenFlow AI – Real-Time Environmental Monitoring</title>
+  <meta name="description" content="GreenFlow AI provides real-time CO2 monitoring, risk assessment, and AI-powered environmental recommendations for India's green future." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════ TOP NAV BAR ════════════════════════════ -->
+  <header class="navbar" role="banner">
+    <div class="navbar__brand">
+      <span class="navbar__logo" aria-hidden="true">🌿</span>
+      <span class="navbar__title">GreenFlow <strong>AI</strong></span>
+    </div>
+    <nav class="navbar__links" aria-label="Primary navigation">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#ai-chat">AI Advisor</a>
+      <a href="#alerts">Alerts</a>
+    </nav>
+    <div class="navbar__status">
+      <span id="connection-indicator" class="status-dot status-dot--connecting" aria-label="Connection status"></span>
+      <span id="connection-label">Connecting…</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
+  <section class="hero" aria-label="Dashboard hero" id="dashboard">
+    <div class="hero__text">
+      <p class="hero__eyebrow">🇮🇳 Hack for Green Bharat</p>
+      <h1 class="hero__title">Real-Time CO₂ Intelligence</h1>
+      <p class="hero__subtitle">
+        Continuous environmental monitoring, risk scoring, and AI-powered
+        recommendations — all in one live dashboard.
+      </p>
+    </div>
+    <div class="hero__time" id="live-clock" aria-live="polite"></div>
+  </section>
+
+  <!-- ══════════════════════ METRICS ROW ══════════════════════ -->
+  <main class="container" id="main-content">
+    <section class="metrics-grid" aria-label="Key metrics">
+
+      <article class="metric-card" id="card-co2">
+        <div class="metric-card__icon" aria-hidden="true">🌫️</div>
+        <div class="metric-card__label">CO₂ Level</div>
+        <div class="metric-card__value" id="co2-value">—</div>
+        <div class="metric-card__unit">ppm</div>
+        <div class="metric-card__trend" id="co2-trend"></div>
+      </article>
+
+      <article class="metric-card" id="card-risk">
+        <div class="metric-card__icon" aria-hidden="true">⚠️</div>
+        <div class="metric-card__label">Risk Score</div>
+        <div class="metric-card__value" id="risk-value">—</div>
+        <div class="metric-card__unit">/ 1.0</div>
+        <div class="risk-bar-wrapper">
+          <div class="risk-bar" id="risk-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </article>
+
+      <article class="metric-card" id="card-severity">
+        <div class="metric-card__icon" aria-hidden="true">📊</div>
+        <div class="metric-card__label">Severity</div>
+        <div class="metric-card__value severity-badge" id="severity-value">—</div>
+        <div class="metric-card__unit" id="severity-source">—</div>
+      </article>
+
+      <article class="metric-card" id="card-carbon">
+        <div class="metric-card__icon" aria-hidden="true">♻️</div>
+        <div class="metric-card__label">Carbon Score</div>
+        <div class="metric-card__value" id="carbon-value">—</div>
+        <div class="metric-card__unit">index</div>
+      </article>
+
+    </section>
+
+    <!-- ══════════════════════ CO₂ CHART ════════════════════════ -->
+    <section class="chart-section" aria-label="CO₂ trend chart">
+      <h2 class="section-title">CO₂ Trend <span class="live-badge">LIVE</span></h2>
+      <div class="chart-wrapper">
+        <canvas id="co2-chart" aria-label="CO₂ concentration over time"></canvas>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ PREDICTION + RECOMMENDATION ══════ -->
+    <div class="twin-grid">
+
+      <section class="panel" aria-label="24-hour prediction">
+        <h2 class="panel__title">📈 CO₂ Forecast</h2>
+        <div class="panel__body" id="prediction-panel">
+          <div class="forecast-row">
+            <span>Current</span>
+            <strong id="pred-current">—</strong>
+          </div>
+          <div class="forecast-row">
+            <span>In 1 Hour</span>
+            <strong id="pred-1h">—</strong>
+          </div>
+          <div class="forecast-row">
+            <span>In 24 Hours</span>
+            <strong id="pred-24h">—</strong>
+          </div>
+          <div class="forecast-row">
+            <span>Trend</span>
+            <strong id="pred-trend">—</strong>
+          </div>
+          <div class="forecast-row">
+            <span>Confidence</span>
+            <strong id="pred-confidence">—</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="AI recommendation">
+        <h2 class="panel__title">🤖 AI Recommendation</h2>
+        <div class="panel__body" id="recommendation-panel">
+          <p class="rec-title" id="rec-title">Loading…</p>
+          <p class="rec-body" id="rec-body"></p>
+          <ul class="rec-actions" id="rec-actions"></ul>
+          <div class="rec-urgency" id="rec-urgency"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ══════════════════════ AI CHAT ════════════════════════════ -->
+    <section class="chat-section" id="ai-chat" aria-label="AI chat advisor">
+      <h2 class="section-title">💬 Ask GreenFlow AI</h2>
+      <div class="chat-window" id="chat-window" aria-live="polite" aria-label="Chat messages">
+        <div class="chat-message chat-message--bot">
+          <p>👋 Hi! I'm GreenFlow AI. Ask me about CO₂ levels, climate risk, or environmental actions.</p>
+        </div>
+      </div>
+      <form class="chat-form" id="chat-form" aria-label="Ask a question">
+        <input
+          type="text"
+          id="chat-input"
+          class="chat-input"
+          placeholder="e.g. What is the current risk level?"
+          autocomplete="off"
+          aria-label="Your question"
+          maxlength="500"
+        />
+        <button type="submit" class="chat-submit" id="chat-submit-btn" aria-label="Send question">
+          Send
+        </button>
+      </form>
+    </section>
+
+    <!-- ══════════════════════ RECENT EVENTS ══════════════════════ -->
+    <section class="events-section" aria-label="Recent sensor events">
+      <h2 class="section-title">📡 Recent Events</h2>
+      <div class="table-wrapper">
+        <table class="events-table" aria-label="Environmental events">
+          <thead>
+            <tr>
+              <th scope="col">Time</th>
+              <th scope="col">Source</th>
+              <th scope="col">CO₂ (ppm)</th>
+              <th scope="col">Risk</th>
+              <th scope="col">Severity</th>
+            </tr>
+          </thead>
+          <tbody id="events-table-body">
+            <tr>
+              <td colspan="5" class="table-placeholder">Loading events…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ ALERTS ════════════════════════════ -->
+    <section class="alerts-section" id="alerts" aria-label="System alerts">
+      <h2 class="section-title">🚨 System Alerts</h2>
+      <div id="alerts-container" class="alerts-list">
+        <p class="no-alerts">No active alerts.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════ FOOTER════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <span>🌿 GreenFlow AI © 2025 – Hack for Green Bharat</span>
+      <span>Built with FastAPI · OpenAI · ChromaDB · SSE</span>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════ SCRIPTS ══════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

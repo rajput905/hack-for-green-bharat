@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  # ─── GreenFlow API ──────────────────────────────────────────────────────────
+  api:
+    build: .
+    container_name: greenflow-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://greenflow:greenflow@db:5432/greenflow
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY:-changeme}
+      - APP_ENV=production
+      - DEBUG=false
+      - CHROMA_PERSIST_DIR=/app/data/chroma
+      - PIPELINE_OUTPUT_FILE=/app/data/output/enriched.jsonl
+    volumes:
+      - greenflow_data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - greenflow-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ─── PostgreSQL ──────────────────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: greenflow-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: greenflow
+      POSTGRES_USER: greenflow
+      POSTGRES_PASSWORD: greenflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - greenflow-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U greenflow -d greenflow" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_data:
+  greenflow_data:
+
+
+networks:
+  greenflow-net:
+    driver: bridge

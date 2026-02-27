@@ -1,0 +1,42 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Environment
+.env
+!.env.example
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Runtime data
+data/
+*.jsonl
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+
+# ChromaDB
+chroma/
