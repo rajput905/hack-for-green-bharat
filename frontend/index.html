@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GreenFlow AI – Real-Time Environmental Monitoring</title>
-  <meta name="description" content="GreenFlow AI provides real-time CO2 monitoring, risk assessment, and AI-powered environmental recommendations for India's green future." />
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <meta name="description"
+    content="GreenFlow AI provides real-time CO2 monitoring, risk assessment, and AI-powered environmental recommendations for India's green future." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
 
-  <!-- ════════════════════════════ TOP NAV BAR ════════════════════════════ -->
+  <!-- ═══════════════════════════ TOP NAV ═══════════════════════════ -->
   <header class="navbar" role="banner">
     <div class="navbar__brand">
       <span class="navbar__logo" aria-hidden="true">🌿</span>
       <span class="navbar__title">GreenFlow <strong>AI</strong></span>
     </div>
+
+    <!-- City Mode Dropdown -->
+    <div class="city-selector">
+      <label for="city-select" class="city-label">🏙 City:</label>
+      <select id="city-select" class="city-select" aria-label="Select city">
+        <option value="Delhi">Delhi</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Bangalore">Bangalore</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Industrial Zone">Industrial Zone</option>
+      </select>
+    </div>
+
     <nav class="navbar__links" aria-label="Primary navigation">
       <a href="#dashboard">Dashboard</a>
+      <a href="#simulator">Simulator</a>
       <a href="#ai-chat">AI Advisor</a>
       <a href="#alerts">Alerts</a>
+      <button class="arch-btn" id="arch-modal-btn" title="How GreenFlow Works">⚙ Architecture</button>
     </nav>
     <div class="navbar__status">
       <span id="connection-indicator" class="status-dot status-dot--connecting" aria-label="Connection status"></span>
@@ -30,7 +48,7 @@
     </div>
   </header>
 
-  <!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
+  <!-- ═══════════════════════════ HERO ═══════════════════════════════ -->
   <section class="hero" aria-label="Dashboard hero" id="dashboard">
     <div class="hero__text">
       <p class="hero__eyebrow">🇮🇳 Hack for Green Bharat</p>
@@ -43,8 +61,38 @@
     <div class="hero__time" id="live-clock" aria-live="polite"></div>
   </section>
 
-  <!-- ══════════════════════ METRICS ROW ══════════════════════ -->
+  <!-- ═══════════════════════════ SYSTEM STATUS PANEL ════════════════ -->
+  <div class="status-panel-wrapper">
+    <div class="status-panel" id="system-status-panel">
+      <div class="status-item">
+        <span class="status-item__dot" id="sp-api-dot"></span>
+        <span>API</span>
+        <strong id="sp-api-label">Checking…</strong>
+      </div>
+      <div class="status-item">
+        <span class="status-item__dot" id="sp-ai-dot"></span>
+        <span>AI Engine</span>
+        <strong id="sp-ai-label">Checking…</strong>
+      </div>
+      <div class="status-item">
+        <span class="status-item__dot" id="sp-stream-dot"></span>
+        <span>Stream</span>
+        <strong id="sp-stream-label">Waiting…</strong>
+      </div>
+      <div class="status-item">
+        <span>Last Update</span>
+        <strong id="sp-last-update">—</strong>
+      </div>
+      <div class="status-item">
+        <span>City</span>
+        <strong id="sp-city">Delhi</strong>
+      </div>
+    </div>
+  </div>
+
   <main class="container" id="main-content">
+
+    <!-- ══════════════════════ METRIC CARDS ══════════════════════════ -->
     <section class="metrics-grid" aria-label="Key metrics">
 
       <article class="metric-card" id="card-co2">
@@ -53,35 +101,61 @@
         <div class="metric-card__value" id="co2-value">—</div>
         <div class="metric-card__unit">ppm</div>
         <div class="metric-card__trend" id="co2-trend"></div>
+        <!-- Anomaly Badge -->
+        <div class="anomaly-badge" id="anomaly-badge" style="display:none">⚠ Spike Detected</div>
       </article>
 
       <article class="metric-card" id="card-risk">
         <div class="metric-card__icon" aria-hidden="true">⚠️</div>
-        <div class="metric-card__label">Risk Score</div>
+        <div class="metric-card__label">
+          Risk Score
+          <span class="tooltip-icon" data-tip="risk">ℹ</span>
+        </div>
         <div class="metric-card__value" id="risk-value">—</div>
-        <div class="metric-card__unit">/ 1.0</div>
+        <div class="metric-card__unit">
+          / 1.0 &nbsp; <span class="risk-badge" id="risk-category-badge">—</span>
+        </div>
         <div class="risk-bar-wrapper">
-          <div class="risk-bar" id="risk-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="risk-bar" id="risk-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+            aria-valuemax="100"></div>
+        </div>
+        <div class="tooltip-box" id="tooltip-risk">
+          Calculated as <code>min(CO₂ / 500, 1.0)</code>.<br>
+          Safe &lt; 0.7 · Warning ≥ 0.7 · Danger ≥ 0.8 · Critical ≥ 1.0
         </div>
       </article>
 
       <article class="metric-card" id="card-severity">
         <div class="metric-card__icon" aria-hidden="true">📊</div>
-        <div class="metric-card__label">Severity</div>
+        <div class="metric-card__label">
+          Severity
+          <span class="tooltip-icon" data-tip="severity">ℹ</span>
+        </div>
         <div class="metric-card__value severity-badge" id="severity-value">—</div>
         <div class="metric-card__unit" id="severity-source">—</div>
+        <div class="tooltip-box" id="tooltip-severity">
+          <b>Safe</b>: CO₂ &lt; 350 ppm (CPCB standard)<br>
+          <b>Warning</b>: 350–400 ppm (elevated)<br>
+          <b>Danger</b>: 400–450 ppm (regulatory limit)<br>
+          <b>Critical</b>: &gt; 450 ppm (emergency)
+        </div>
       </article>
 
-      <article class="metric-card" id="card-carbon">
-        <div class="metric-card__icon" aria-hidden="true">♻️</div>
-        <div class="metric-card__label">Carbon Score</div>
-        <div class="metric-card__value" id="carbon-value">—</div>
-        <div class="metric-card__unit">index</div>
+      <article class="metric-card" id="card-compliance">
+        <div class="metric-card__icon" aria-hidden="true">📏</div>
+        <div class="metric-card__label">Compliance</div>
+        <div class="metric-card__value" id="compliance-value">—</div>
+        <div class="metric-card__unit">vs 400 ppm limit</div>
+        <div class="compliance-bar-wrapper">
+          <div class="compliance-bar" id="compliance-bar"></div>
+          <div class="compliance-limit-marker"></div>
+        </div>
+        <div class="compliance-label" id="compliance-label">Loading…</div>
       </article>
 
     </section>
 
-    <!-- ══════════════════════ CO₂ CHART ════════════════════════ -->
+    <!-- ══════════════════════ CO₂ CHART ═════════════════════════════ -->
     <section class="chart-section" aria-label="CO₂ trend chart">
       <h2 class="section-title">CO₂ Trend <span class="live-badge">LIVE</span></h2>
       <div class="chart-wrapper">
@@ -89,7 +163,7 @@
       </div>
     </section>
 
-    <!-- ══════════════════════ PREDICTION + RECOMMENDATION ══════ -->
+    <!-- ══════════════════════ PREDICTION + RECOMMENDATION ═══════════ -->
     <div class="twin-grid">
 
       <section class="panel" aria-label="24-hour prediction">
@@ -115,22 +189,80 @@
             <span>Confidence</span>
             <strong id="pred-confidence">—</strong>
           </div>
+          <!-- Confidence bar -->
+          <div class="confidence-bar-wrapper" title="Model confidence level">
+            <div class="confidence-bar" id="confidence-bar"></div>
+          </div>
         </div>
       </section>
 
       <section class="panel" aria-label="AI recommendation">
         <h2 class="panel__title">🤖 AI Recommendation</h2>
         <div class="panel__body" id="recommendation-panel">
-          <p class="rec-title" id="rec-title">Loading…</p>
+          <div class="rec-skeleton" id="rec-skeleton">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line skeleton-line--short"></div>
+            <div class="skeleton-line"></div>
+          </div>
+          <p class="rec-title" id="rec-title" style="display:none">Loading…</p>
           <p class="rec-body" id="rec-body"></p>
           <ul class="rec-actions" id="rec-actions"></ul>
           <div class="rec-urgency" id="rec-urgency"></div>
+          <!-- Why this recommendation button -->
+          <button class="why-btn" id="why-rec-btn" style="display:none">🔍 Why this recommendation?</button>
+          <div class="why-panel" id="why-panel" style="display:none">
+            <div class="why-row"><span>CO₂ Level</span><strong id="why-co2">—</strong></div>
+            <div class="why-row"><span>Risk Score</span><strong id="why-risk">—</strong></div>
+            <div class="why-row"><span>Forecast (1h)</span><strong id="why-forecast">—</strong></div>
+            <div class="why-row"><span>Severity</span><strong id="why-severity">—</strong></div>
+            <div class="why-row"><span>Retrieved Context</span><strong>Environmental knowledge base (ChromaDB
+                RAG)</strong></div>
+          </div>
         </div>
       </section>
 
     </div>
 
-    <!-- ══════════════════════ AI CHAT ════════════════════════════ -->
+    <!-- ══════════════════════ WHAT-IF SIMULATOR ══════════════════════ -->
+    <section class="simulator-section" id="simulator" aria-label="What-If Simulator">
+      <h2 class="section-title">🧪 What-If Simulator
+        <span class="section-subtitle">— Test any CO₂ scenario instantly</span>
+      </h2>
+      <div class="simulator-grid">
+        <div class="sim-input-group">
+          <label for="sim-co2">CO₂ Level (ppm)</label>
+          <input type="number" id="sim-co2" class="sim-input" value="420" min="300" max="1000" step="1" />
+        </div>
+        <div class="sim-input-group">
+          <label for="sim-temp">Temperature (°C)</label>
+          <input type="number" id="sim-temp" class="sim-input" value="28" min="-10" max="60" step="0.5" />
+        </div>
+        <div class="sim-input-group">
+          <label for="sim-aqi">AQI</label>
+          <input type="number" id="sim-aqi" class="sim-input" value="120" min="0" max="500" step="1" />
+        </div>
+        <button class="sim-btn" id="sim-run-btn">▶ Simulate</button>
+      </div>
+      <div class="sim-result" id="sim-result" style="display:none">
+        <div class="sim-output-grid">
+          <div class="sim-output-card">
+            <div class="sim-output-label">Risk Score</div>
+            <div class="sim-output-value" id="sim-risk">—</div>
+          </div>
+          <div class="sim-output-card">
+            <div class="sim-output-label">Category</div>
+            <div class="sim-output-value" id="sim-category">—</div>
+          </div>
+          <div class="sim-output-card">
+            <div class="sim-output-label">Compliance</div>
+            <div class="sim-output-value" id="sim-compliance">—</div>
+          </div>
+        </div>
+        <div class="sim-recommendation" id="sim-recommendation"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ AI CHAT ════════════════════════════════ -->
     <section class="chat-section" id="ai-chat" aria-label="AI chat advisor">
       <h2 class="section-title">💬 Ask GreenFlow AI</h2>
       <div class="chat-window" id="chat-window" aria-live="polite" aria-label="Chat messages">
@@ -138,23 +270,21 @@
           <p>👋 Hi! I'm GreenFlow AI. Ask me about CO₂ levels, climate risk, or environmental actions.</p>
         </div>
       </div>
+      <!-- Loading shimmer -->
+      <div class="chat-skeleton" id="chat-skeleton" style="display:none">
+        <div class="chat-skeleton__dot"></div>
+        <div class="chat-skeleton__text">Analyzing environmental risk…</div>
+      </div>
       <form class="chat-form" id="chat-form" aria-label="Ask a question">
-        <input
-          type="text"
-          id="chat-input"
-          class="chat-input"
-          placeholder="e.g. What is the current risk level?"
-          autocomplete="off"
-          aria-label="Your question"
-          maxlength="500"
-        />
+        <input type="text" id="chat-input" class="chat-input" placeholder="e.g. What actions reduce CO₂ in Delhi?"
+          autocomplete="off" aria-label="Your question" maxlength="500" />
         <button type="submit" class="chat-submit" id="chat-submit-btn" aria-label="Send question">
           Send
         </button>
       </form>
     </section>
 
-    <!-- ══════════════════════ RECENT EVENTS ══════════════════════ -->
+    <!-- ══════════════════════ RECENT EVENTS ══════════════════════════ -->
     <section class="events-section" aria-label="Recent sensor events">
       <h2 class="section-title">📡 Recent Events</h2>
       <div class="table-wrapper">
@@ -177,9 +307,9 @@
       </div>
     </section>
 
-    <!-- ══════════════════════ ALERTS ════════════════════════════ -->
-    <section class="alerts-section" id="alerts" aria-label="System alerts">
-      <h2 class="section-title">🚨 System Alerts</h2>
+    <!-- ══════════════════════ ALERT HISTORY ══════════════════════════ -->
+    <section class="alerts-section" id="alerts" aria-label="Alert history">
+      <h2 class="section-title">🚨 Alert History</h2>
       <div id="alerts-container" class="alerts-list">
         <p class="no-alerts">No active alerts.</p>
       </div>
@@ -187,19 +317,68 @@
 
   </main>
 
-  <!-- ══════════════════════ FOOTER════════════════════════════════ -->
+  <!-- ═══════════════════════ FOOTER ════════════════════════════════ -->
   <footer class="footer" role="contentinfo">
     <div class="footer__inner">
       <span>🌿 GreenFlow AI © 2025 – Hack for Green Bharat</span>
-      <span>Built with FastAPI · OpenAI · ChromaDB · SSE</span>
+      <span>FastAPI · OpenAI · ChromaDB · SSE · Real-Time Intelligence</span>
     </div>
   </footer>
 
-  <!-- ══════════════════════ SCRIPTS ══════════════════════════════ -->
+  <!-- ═══════════════════════ ARCHITECTURE MODAL ════════════════════ -->
+  <div class="modal-overlay" id="arch-modal" role="dialog" aria-modal="true" aria-label="System Architecture"
+    style="display:none">
+    <div class="modal">
+      <button class="modal__close" id="arch-modal-close" aria-label="Close">✕</button>
+      <h2 class="modal__title">⚙ How GreenFlow AI Works</h2>
+      <pre class="arch-diagram">
+  Sensor Input
+      │
+      ▼
+  POST /api/v1/events
+      │
+      ▼
+  ┌─────────────────────────────────┐
+  │       Feature Extractor         │
+  │  risk_score = CO₂ / 500        │
+  │  carbon_score = delta baseline  │
+  │  classify_severity()            │
+  │  is_anomaly() → z-score         │
+  └──────────────┬──────────────────┘
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+  SQLite / PostgreSQL   AlertService
+  (async ORM)          (threshold check)
+        │
+        ▼
+  JSONL Pipeline
+        │
+        ▼
+  SSE Generator ──────► Browser Dashboard
+                              (every 2s)
+
+  On /query request:
+  ┌─────────────────────┐
+  │    RAG Engine       │
+  │  ChromaDB search    │
+  │  + live CO₂ context │
+  │  → OpenAI GPT-3.5   │
+  └─────────────────────┘
+      </pre>
+      <div class="modal__footer">
+        Risk formula: <code>risk = min(CO₂_ppm / 500, 1.0)</code> &nbsp;|&nbsp;
+        Thresholds: Safe &lt;350 · Warning ≥350 · Danger ≥400 · Critical ≥450
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ SCRIPTS ═══════════════════════════════ -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/api.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/app.js"></script>
 
 </body>
+
 </html>
