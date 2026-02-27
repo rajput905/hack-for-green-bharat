@@ -36,7 +36,7 @@ We aren't just building a dashboard; we are building the infrastructure for Indi
 ## ✨ Elite Product Showcase
 
 ### 1. Futuristic Real-Time Dashboard
-![Dashboard Overview](file:///C:/Users/RITIK%20RAJPUT/.gemini/antigravity/brain/a6a108d0-a938-4b7f-9bbb-d8422ef38cf1/media__1772164101812.png)
+![Dashboard Overview](/C:/Users/RITIK%20RAJPUT/.gemini/antigravity/brain/a6a108d0-a938-4b7f-9bbb-d8422ef38cf1/media__1772164101812.png)
 *A Glassmorphism UI featuring live SSE telemetry, anomaly detection badges, and a "What-If" simulator for environmental stress-testing.*
 
 ### 2. The "Wow" Feature: Automated Regulatory Reporting
