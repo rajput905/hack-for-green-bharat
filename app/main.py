@@ -59,6 +59,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_db()
     logger.info("Database tables ready.")
 
+    # Ensure vector store directory exists
+    Path(settings.CHROMA_PERSIST_DIR).mkdir(parents=True, exist_ok=True)
+    logger.info("ChromaDB persistence directory ready: %s", settings.CHROMA_PERSIST_DIR)
+
     # RAG knowledge base – run in background thread so the 79MB ChromaDB
     # ONNX model download doesn't block server startup.
     def _seed_rag() -> None:
@@ -76,7 +80,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     pipeline_thread.start()
     logger.info("Streaming pipeline started (daemon thread).")
 
-    logger.info("GreenFlow AI is live at http://0.0.0.0:%s", 8000)
+    logger.info(
+        "GreenFlow AI is live in %s mode (DEBUG=%s)",
+        settings.APP_ENV.upper(),
+        settings.DEBUG
+    )
+    logger.info("Access dashboard at http://localhost:8000")
     yield
 
     logger.info("GreenFlow AI shutting down ...")
@@ -100,8 +109,9 @@ def create_app() -> FastAPI:
             "'Hack for Green Bharat' initiative. Provides CO2 tracking, "
             "risk scoring, AI recommendations, and live streaming insights."
         ),
-        docs_url="/docs",
-        redoc_url="/redoc",
+        docs_url=settings.docs_url,
+        redoc_url=settings.redoc_url,
+        debug=settings.DEBUG,
         lifespan=lifespan,
     )
 
@@ -124,6 +134,17 @@ def create_app() -> FastAPI:
     app.include_router(risk.router, prefix=API_PREFIX)
     app.include_router(prediction.router, prefix=API_PREFIX)
     app.include_router(recommendation.router, prefix=API_PREFIX)
+
+    # ── Config Endpoint ───────────────────────────────────────────────────────
+    @app.get(f"{API_PREFIX}/config/thresholds", tags=["Config"], summary="Get current CO2 thresholds")
+    async def get_thresholds():
+        """Return the current danger, warning, and critical CO2 thresholds."""
+        return {
+            "warning": settings.CO2_WARNING_THRESHOLD,
+            "danger": settings.CO2_DANGER_THRESHOLD,
+            "critical": settings.CO2_CRITICAL_THRESHOLD,
+            "unit": "ppm"
+        }
 
     # ── Static Frontend ───────────────────────────────────────────────────────
     frontend_path = Path(__file__).parent.parent / "frontend"
