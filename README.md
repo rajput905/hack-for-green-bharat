@@ -1,120 +1,281 @@
-﻿<div align="center">
+🌿 GreenFlow AI
+Real-Time Environmental Intelligence & Predictive Risk Monitoring System
 
-# 🌿 GreenFlow AI
-### Elite Environmental Intelligence & Compliance Engine
+Predict. Prevent. Protect.
+Transforming environmental monitoring from reactive dashboards to proactive intelligence.
 
-**Hack for Green Bharat 2025** · Sub-second Ingestion · AI-Grounded RAG · Automated Compliance Reporting
+📌 Overview
 
-[![CI](https://github.com/rajput905/hack-for-green-bharat/actions/workflows/ci.yml/badge.svg)](https://github.com/rajput905/hack-for-green-bharat/actions)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi)](https://fastapi.tiangolo.com)
-[![Market Ready](https://img.shields.io/badge/Status-Market--Ready-brightgreen.svg)](docs/BUSINESS_MODEL.md)
+GreenFlow AI is a real-time environmental intelligence platform designed to monitor CO₂ levels, assess environmental risk, forecast future trends, and generate AI-powered mitigation recommendations.
 
-</div>
+Unlike traditional dashboards that simply display data, GreenFlow AI predicts environmental risk before escalation and provides actionable insights for prevention.
 
----
+Built using FastAPI, real-time streaming, vector search (ChromaDB), and OpenAI-powered Retrieval-Augmented Generation (RAG).
 
-## 🚨 The Urgency: Why GreenFlow AI?
-India is at a climate crossroads. With **urban CO₂ levels spiking 15% annually**, the status quo of "passive monitoring" is no longer viable. 
-- **The Financial Cost**: $210B annual loss due to environmental mismanagement.
-- **The Regulatory Shift**: SEBI’s **BRSR** now mandates ESG transparency for India's top companies.
-- **The Solution**: GreenFlow AI transitions from *reporting what happened* to **predicting and preventing environmental crisis**.
+🚨 Problem Statement
 
----
+Urban regions and industrial zones face increasing environmental volatility due to:
 
-## 🏢 Business Impact & Market Validation
-We aren't just building a dashboard; we are building the infrastructure for India's **Sovereign Net-Zero Future**.
+Rising pollution levels
 
-- **Market Potential (TAM)**: $15B+ global environmental monitoring sector.
-- **Urgency Factor**: Direct regulatory alignment with **CPCB (Central Pollution Control Board)** 400ppm limits.
-- **Target Users**: Smart City Municipalities, SEZs (Special Economic Zones), and BRSR-mandated corporations.
+Climate instability
 
-> **Validation Note**: Designed using requirements from actual ESG audit workflows and CPCB environmental guidelines.
+Regulatory compliance pressure
 
----
+Delayed reactive intervention systems
 
-## ✨ Elite Product Showcase
+Current systems:
 
-### 1. Futuristic Real-Time Dashboard
-![Dashboard Overview](/C:/Users/RITIK%20RAJPUT/.gemini/antigravity/brain/a6a108d0-a938-4b7f-9bbb-d8422ef38cf1/media__1772164101812.png)
-*A Glassmorphism UI featuring live SSE telemetry, anomaly detection badges, and a "What-If" simulator for environmental stress-testing.*
+Only display historical metrics
 
-### 2. The "Wow" Feature: Automated Regulatory Reporting
-One-click generation of professional environmental status reports. Compiled from live sensor data, AI-contextualized risk scores, and RAG-driven recommendations.
-**[View Sample Report Flow]**
+Do not forecast short-term risk
 
-### 3. AI Advisor (RAG-Enabled)
-Grounding OpenAI results in our curated Environmental Knowledge Base using **ChromaDB**. GreenFlow AI delivers *legal* and *scientific* context, not just generic LLM text.
+Lack AI-based prevention guidance
 
----
+Require manual interpretation
 
-## 🏗 High-Performance Architecture
+This leads to delayed mitigation and higher environmental risk.
 
-```mermaid
-graph TD
-    subgraph "Edge Layer"
-        Sensor["IoT Sensor Node"] -->|POST| API["FastAPI Endpoint"]
-    end
+💡 Our Solution
 
-    subgraph "Pathway Intelligence Engine"
-        API -->|Async| Extractor["Feature Extractor"]
-        Extractor -->|Risk Score| SSE["SSE Streamer"]
-        Extractor -->|Severity| Alerts["Alert Service"]
-    end
+GreenFlow AI integrates:
 
-    subgraph "AI & Knowledge Layer"
-        User["User Query"] -->|RAG| Engine["RAGEngine"]
-        Engine -->|Context| Chroma["ChromaDB Vector Store"]
-        Engine -->|Query| OpenAI["GPT-3.5-Turbo"]
-    end
+Real-time telemetry ingestion
 
-    subgraph "Persistence"
-        SSE -->|Live| DB["PostgreSQL / SQLite"]
-    end
+Configurable risk scoring engine
 
-    SSE -->|Real-Time| Dash["Futuristic Dashboard"]
-    OpenAI -->|Expert Advice| Dash
-```
+CO₂ forecasting
 
----
+AI-driven environmental recommendations
 
-## 🛠 Tech Stack (The Winning Edge)
-- **Backend**: FastAPI (Python 3.11), SQLAlchemy Async, Pydantic v2.
-- **Real-Time Transmission**: Server-Sent Events (SSE) for sub-second latency.
-- **Vector DB**: ChromaDB for persistent RAG storage.
-- **Frontend**: Vanilla JS (0 external bloat), Chart.js for telemetry.
-- **Cloud Native**: Docker & Docker-Compose optimized for ECS/K8s deployment.
+Streaming dashboard
 
----
+Persistent vector memory for contextual reasoning
 
-## 🚀 Speed-to-Market Deployment
+The system proactively detects environmental threats and recommends corrective action before regulatory violation occurs.
 
-### Quick Install
-```bash
+🏗 Architecture Overview
+System Layers
+1️⃣ Data Ingestion
+
+JSONL sensor ingestion
+
+REST API event ingestion
+
+Real-time streaming via SSE
+
+2️⃣ Processing & Feature Layer
+
+CO₂ normalization
+
+Risk score calculation
+
+Threshold-based severity detection
+
+Configurable via environment variables
+
+3️⃣ AI Intelligence Layer
+
+ChromaDB persistent vector storage
+
+OpenAI-powered RAG engine
+
+Context-aware recommendation generation
+
+4️⃣ API Layer
+
+FastAPI async backend
+
+Structured endpoints
+
+Health and readiness checks
+
+5️⃣ Frontend Dashboard
+
+Real-time telemetry cards
+
+Risk gauge visualization
+
+Forecast analytics
+
+AI advisory panel
+
+Ask GreenFlow AI chatbot
+
+🔬 Core Features
+
+✔ Real-time CO₂ monitoring
+✔ Configurable warning & danger thresholds
+✔ Risk score (0.0 – 1.0 scale)
+✔ Severity classification (Safe / Warning / Danger)
+✔ 1-hour & 24-hour forecast simulation
+✔ AI-powered mitigation recommendations
+✔ Persistent vector search (ChromaDB)
+✔ Environment-based configuration
+✔ Production-ready FastAPI backend
+✔ Docker-ready deployment
+
+📊 Risk Scoring Model
+
+Risk is calculated dynamically using configurable thresholds:
+
+Risk Score = min(CO2_PPM / CO2_DANGER_THRESHOLD, 1.0)
+
+Environment variables allow modification without code changes:
+
+CO2_WARNING_THRESHOLD=350.0
+CO2_DANGER_THRESHOLD=400.0
+
+Severity categories:
+
+Safe
+
+Warning
+
+Danger
+
+🤖 AI Recommendation Engine
+
+GreenFlow AI uses Retrieval-Augmented Generation (RAG) to:
+
+Retrieve contextual environmental knowledge
+
+Combine with real-time telemetry
+
+Generate structured mitigation guidance
+
+Example AI Output:
+
+Increase ventilation
+
+Reduce high-emission processes
+
+Notify environmental authorities
+
+Activate emergency air purification systems
+
+🌍 Target Users
+
+Smart City Administrations
+
+Pollution Control Boards
+
+Industrial Compliance Teams
+
+Environmental Monitoring Agencies
+
+Urban Infrastructure Planners
+
+💰 Business Model
+
+GreenFlow AI operates as a SaaS-based environmental intelligence platform:
+
+Municipal monitoring subscription
+
+Industrial compliance licensing
+
+API-based environmental analytics
+
+ESG reporting integration
+
+Future expansion includes predictive disaster alerts and multi-city risk dashboards.
+
+🚀 Installation & Setup
+1️⃣ Clone Repository
 git clone https://github.com/rajput905/hack-for-green-bharat.git
 cd hack-for-green-bharat
-cp .env.example .env && # Add OPENAI_API_KEY
-docker compose up -d
-```
-Access the dashboard at **http://localhost:8000**.
+2️⃣ Create Virtual Environment
+python -m venv .venv
+.venv\Scripts\activate
+3️⃣ Install Dependencies
+pip install -r requirements.txt
+4️⃣ Configure Environment
 
----
+Create .env file:
 
-## 🔮 Future Roadmap (Scaling to Bharat)
-- [ ] **Hardware Mesh**: Integration with low-cost LoRaWAN sensor nodes.
-- [ ] **Blockchain Proof**: Recording emission logs on-chain for immutable carbon credit audits.
-- [ ] **Multi-Pollutant Scope**: Expanding to PM2.5, SO₂, and NO₂ tracking.
-- [ ] **Vernacular AI**: Multi-language support (Hindi/Tamil/Bengali) for local factory workers.
+APP_ENV=development
+DEBUG=true
+OPENAI_API_KEY=your_key
+CO2_WARNING_THRESHOLD=350.0
+CO2_DANGER_THRESHOLD=400.0
+CHROMA_PERSIST_DIR=./chroma_storage
+5️⃣ Run Application
+uvicorn app.main:app --reload
 
----
+Visit:
 
-## 🤝 Project Links
-- 📜 **Full Business Model**: [docs/BUSINESS_MODEL.md](docs/BUSINESS_MODEL.md)
-- 🏗 **Technical Architecture**: [docs/architecture.md](docs/architecture.md)
-- 📡 **REST API Spec**: [docs/api-spec.md](docs/api-spec.md)
+http://localhost:8000
+📡 API Endpoints
+Method	Endpoint	Description
+GET	/health	Service health check
+POST	/events	Ingest environmental event
+GET	/events	Retrieve recent events
+POST	/query	Ask AI engine
+GET	/stream/events	Live SSE stream
 
----
+Swagger docs available at:
 
-<div align="center">
-Built with ❤️ for **Hack for Green Bharat 2025** · MIT License
-</div>
+/docs
+🐳 Docker Deployment
+docker-compose up --build
+
+Production mode:
+
+APP_ENV=production
+DEBUG=false
+🧪 Testing
+pytest tests/
+
+Basic API health and route validation included.
+
+📁 Project Structure
+app/
+frontend/
+tests/
+docs/
+
+Modular and scalable backend architecture.
+
+📸 Screenshots
+
+(Add screenshots here from your dashboard)
+
+Example:
+
+![Dashboard]
+<img width="1658" height="777" alt="Screenshot 2026-02-27 094422" src="https://github.com/user-attachments/assets/21bbf5e6-6499-4b68-8083-4046891d108b" />
+<img width="1920" height="1080" alt="Screenshot 2026-02-27 092056 - Copy" src="https://github.com/user-attachments/assets/a26c79de-7e2a-4602-8a96-4ef5cb75fa04" />
+
+🔮 Future Enhancements
+
+IoT sensor integration
+
+Multi-city environmental monitoring
+
+ML-based anomaly detection
+
+PDF environmental report export
+
+Regulatory compliance automation
+
+🏆 Why GreenFlow AI Stands Out
+
+GreenFlow AI is not just a monitoring dashboard.
+
+It combines:
+
+Real-time streaming
+
+Predictive analytics
+
+AI-driven decision intelligence
+
+Configurable environmental risk modeling
+
+Persistent contextual reasoning
+
+Designed for scalable smart city infrastructure.
+
+📜 License
+
+MIT License © 2026 GreenFlow AI Team
